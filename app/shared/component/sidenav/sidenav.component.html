@@ -1,0 +1,62 @@
+<mat-sidenav-container class="app-sidenav-container">
+    <!-- <mat-sidenav #sidenav class="app-sidenav mat-elevation-z10"
+                 [opened]="!isScreenSmall()"
+                 [mode]="isScreenSmall() ? 'over' : 'side'"> -->
+    
+      <!-- <mat-sidenav #sidenav class="app-sidenav mat-elevation-z10" [mode]= 'side'> -->
+        <mat-sidenav #sidenav class="app-sidenav mat-elevation-z10">
+
+      <mat-toolbar color="primary">
+        Contacts
+      </mat-toolbar>
+      <mat-list dense>
+          <mat-list-item>   <mat-icon color="accent">home</mat-icon> 
+            <a [routerLink]="['/welcome']">Home</a>
+          </mat-list-item>
+          <mat-list-item>   <mat-icon color="accent">adjust</mat-icon>
+            <a [routerLink]="['/order']">Order</a>
+          </mat-list-item>
+          <mat-list-item><mat-icon color="accent">contacts</mat-icon> 
+            <a [routerLink]="['/customer']">Customer</a>
+          </mat-list-item>
+      </mat-list>
+      
+    </mat-sidenav>
+  
+    <div class="app-sidenav-content">
+        <app-toolbr #toolbar (toggleSidenav)="sidenav.toggle()"></app-toolbr>    
+            <!-- <nav class='navbar navbar-default' ng-show="!isScreenSmall()" >
+                <div class='container-fluid'>
+                    <a class='navbar-brand'>{{pageTitle}}</a>
+                    <ul class='nav navbar-nav' *ngIf="authService.isLoggedIn()">
+                        
+                        <li><a [routerLink]="['/order']"><mat-icon color="accent">nature</mat-icon>Order</a></li>                     
+                        <li><a [routerLink]="['/customer']"><mat-icon color="accent">contacts</mat-icon>Customer</a></li>                                        
+                        <li><a [routerLink]="['/product']"><mat-icon color="accent">adb</mat-icon>Product</a></li>                                        
+                    </ul>
+                    
+                    <div fxLayout="row" fxLayoutAlign="end center">
+                        <ul class='nav navbar-nav' >
+                      <li *ngIf="!authService.isLoggedIn()">
+                          <a  [routerLink]="['/login']"><mat-icon color="accent">check</mat-icon>Log In</a>
+                        </li>
+
+                        <li *ngIf="authService.isLoggedIn()">
+                            <a herf = "#" (click)="logOut()"><mat-icon color="accent">close</mat-icon>Log Out</a>
+                        </li>
+
+
+
+                      </ul> 
+                      </div> 
+                </div>
+            </nav> -->
+      <div class="wrapper">
+        <router-outlet></router-outlet>
+      </div>
+    </div>
+  
+  </mat-sidenav-container>
+
+
+  

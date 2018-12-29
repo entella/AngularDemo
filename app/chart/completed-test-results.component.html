@@ -1,0 +1,125 @@
+<mat-card class="mainCard">   
+  <mat-card-content >
+    <mat-accordion>
+      <mat-expansion-panel>
+        <mat-expansion-panel-header>
+          <mat-panel-title>
+          <strong>Recently Completed Test Results</strong> 
+          </mat-panel-title>   
+          <mat-panel-description>
+            Expand to Search
+          </mat-panel-description>    
+        </mat-expansion-panel-header>   
+      
+  <div  fxLayout="row"  fxLayoutAlign="center"  >
+      <div class="item"   fxFlex="20">  
+
+  <mat-form-field>
+      <input matInput [matDatepicker]="myDatepicker" [(ngModel)] = "fromDate" placeholder="From Date" >
+      <mat-datepicker-toggle matSuffix [for]="myDatepicker" ></mat-datepicker-toggle>
+      <mat-datepicker #myDatepicker></mat-datepicker>
+    </mat-form-field>
+  </div>
+
+  <div class="item"   fxFlex="20">  
+    <mat-form-field>
+      <input matInput [matDatepicker]="myDatepicker1" [(ngModel)] = "toDate" placeholder="To Date" >
+      <mat-datepicker-toggle matSuffix [for]="myDatepicker1"  ></mat-datepicker-toggle>
+      <mat-datepicker #myDatepicker1></mat-datepicker>
+    </mat-form-field>
+  </div>  
+
+  <div class="item"   fxFlex="60">           
+  <button mat-raised-button  color="primary" (click)="LoadCompletedTestCaseSummary()"><mat-icon>search_circle</mat-icon></button>
+  </div>
+
+</div>
+
+</mat-expansion-panel>
+</mat-accordion>
+
+
+
+<br><br>
+
+<mat-card class="mainCard">   
+    <mat-card-content >
+    <wb-loading-spinner [loading]="showLoader" style="text-align: center" ></wb-loading-spinner>
+    <div  fxLayout="row">            
+        <div  fxFlex="100">
+            <mat-form-field>
+          <input matInput (keyup)="applyFilter($event.target.value)" placeholder="Filter Submitted Test ID ">
+        </mat-form-field>
+        </div>
+    </div>
+
+    <div  fxLayout="row"  fxLayoutAlign="center">
+      <div fxFlex="100">   
+        
+      <mat-table #resultTable [dataSource]="dataSource" matSort matSortActive="created" matSortDisableClear  let index="index">      
+        <!--- Note that these columns can be defined in any order.
+              The actual rendered columns are set as a property on the row definition" -->   
+
+      <!-- SubmittedTestID -->
+      <ng-container matColumnDef="SubmittedTestID">
+        <mat-header-cell *matHeaderCellDef mat-sort-header>Submitted Test ID</mat-header-cell>
+        
+        <mat-cell *matCellDef="let element"  flex="2" >        
+                    <a [routerLink]="['/OATResult/',element.SubmittedTestID]" >
+                      {{element.SubmittedTestID}}                 
+                      </a>
+        </mat-cell>
+      </ng-container>
+
+        <!-- Failed-->
+        <ng-container matColumnDef="Failed">
+          <mat-header-cell *matHeaderCellDef mat-sort-header>Failed </mat-header-cell>
+          <mat-cell *matCellDef="let element" [style.color]="_commonDataService?.getColor(0)">  
+              {{element.Failed}}   
+            </mat-cell>
+        </ng-container>
+
+        <!-- Passed -->
+        <ng-container matColumnDef="Passed">
+          <mat-header-cell *matHeaderCellDef mat-sort-header> Passed </mat-header-cell>
+          <mat-cell *matCellDef="let element" [style.color]="_commonDataService?.getColor(1)"> {{element.Passed}} </mat-cell>
+        </ng-container>
+
+        <!-- TimedOut -->
+        <ng-container matColumnDef="TimedOut">
+          <mat-header-cell *matHeaderCellDef mat-sort-header> TimedOut </mat-header-cell>
+          <mat-cell *matCellDef="let element" [style.color]="_commonDataService?.getColor(3)"> {{element.TimedOut}} </mat-cell>
+        </ng-container>
+
+        <!-- Aborted -->
+        <ng-container matColumnDef="Aborted">
+          <mat-header-cell *matHeaderCellDef mat-sort-header>Aborted</mat-header-cell>
+          <mat-cell *matCellDef="let element" [style.color]="_commonDataService?.getColor(4)"> {{element.Aborted}} </mat-cell>
+        </ng-container>
+
+          <!--Running-->
+          <ng-container matColumnDef="Running">
+              <mat-header-cell *matHeaderCellDef mat-sort-header> Running </mat-header-cell>
+              <mat-cell *matCellDef="let element" [style.color]="_commonDataService?.getColor(5)"> {{element.Running}} </mat-cell>
+          </ng-container>
+        
+          
+
+        <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+        <mat-row *matRowDef="let row; columns: displayedColumns;let cIndex  = index"></mat-row>
+      </mat-table>
+
+    <mat-paginator #paginator
+    [pageSize]="100"
+    [pageSizeOptions]="[100, 200, 300]">
+    </mat-paginator>
+
+
+    </div>
+    </div>
+
+</mat-card-content>
+</mat-card>
+
+</mat-card-content>
+</mat-card>

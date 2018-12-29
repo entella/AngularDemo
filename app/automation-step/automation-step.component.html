@@ -1,0 +1,623 @@
+<mat-card class="stepCard">
+
+  <mat-card-content id="scheduleContent">
+  <mat-horizontal-stepper [linear]="true" #stepper >
+
+    <!-- step one - Select Task -->
+  <mat-step [stepControl]="StepOne" [editable]="_isEditable">
+    <form [formGroup] ="StepOne" fxLayout  fxLayout.xs="row" >
+    <ng-template matStepLabel> <strong>Select Task </strong> </ng-template>
+    <mat-divider></mat-divider>
+
+    <div id="devStepOne" class="cardContainerStepOne">
+
+        <mat-card>
+            <span>What would you like to run ?</span><br> <br>
+        <mat-card-content>
+        <div  fxLayout="row">
+          <mat-radio-group required  class="example-radio-group" formControlName="selectedscheduleRunType">
+            <mat-radio-button class="example-radio-button" *ngFor="let type of scheduleRunTypeList" [value]="type.key"  (change)="runTypeChange()">
+              {{type.Value}}
+            </mat-radio-button>
+          </mat-radio-group>
+        </div>
+
+          <div  fxLayout="row">
+          <mat-form-field>
+              <mat-select placeholder="Select Test Environment"  formControlName="selectedEnvironmentId">
+                  <mat-option *ngFor="let option of environmentList" [value]="option.TestEnvironmentID">
+                      {{option.TestEnvironmentName }}
+                    </mat-option>
+                </mat-select>
+              </mat-form-field>
+        </div>
+
+        <mat-form-field flex="100">
+            <textarea matInput placeholder="Description of Test" matTextareaAutosize matAutosizeMinRows="1" formControlName="description"
+            matAutosizeMaxRows="5"></textarea>
+        </mat-form-field>
+        <br>
+        <div fxLayout="row" *ngIf="_commonDataService._userInfo.IsDebugRunOnly">
+            <section>
+            <mat-checkbox class="example-margin"  formControlName="isDebugRun"  >Debug run only</mat-checkbox>
+          </section>
+        </div>
+        <br>
+      <!-- <button mat-button matStepperNext>Next</button> -->
+      <button mat-raised-button color="primary" matStepperNext [disabled]="!StepOne.valid" (click)="NextClick(1)" > <mat-icon>forward</mat-icon> Next</button>
+
+
+
+  </mat-card-content>
+  </mat-card>
+  </div>
+
+  </form>
+  </mat-step>
+
+ <!-- Start => step two - Select Test case / Feature -->
+  <mat-step [stepControl]="secondFormGroup" [editable]="_isEditable">
+    <form [formGroup]="secondFormGroup" class="StepBody">
+      <ng-template matStepLabel><strong>{{GetScheduleScreenName(1)}} </strong></ng-template>
+      <mat-divider></mat-divider>
+
+      <div  fxLayout="row">
+          <div class="item" fxFlex="81">
+      <mat-accordion fxFlex="48" *ngIf="StepOne.value.selectedscheduleRunType==1 || StepOne.value.selectedscheduleRunType==2">
+          <mat-expansion-panel [expanded]="panelOpenState">
+            <mat-expansion-panel-header (click)="togglePanel()">
+              <mat-panel-title>
+              <strong *ngIf="StepOne.value.selectedscheduleRunType ==1"> Select Application {{selctedApplication }} </strong>
+              <strong *ngIf="StepOne.value.selectedscheduleRunType == 2"> Select Functional Area Major {{selctedApplication}} </strong>
+              </mat-panel-title>
+
+            </mat-expansion-panel-header>
+
+      <!-- Application box control , Visible when run type = 'A Test Suite / Test Suites'-->
+      <div  fxLayout="row" *ngIf="StepOne.value.selectedscheduleRunType ==1">
+          <div class="item" fxFlex="48">
+          <mat-card>
+            <mat-card-content>
+            <!-- <strong >Select Application {{selctedApplication }}</strong>            -->
+           <!-- <mat-divider></mat-divider> -->
+
+          <mat-list>
+            <mat-list-item *ngFor="let app of applicationModel"  (click)="getTestSuits(app)">
+              {{app.TestApplicationName}}
+              </mat-list-item>
+          </mat-list>
+
+        </mat-card-content>
+          </mat-card>
+          </div>
+      </div>
+
+        <!-- FunctionalAreaMajor box control , Visible when run type = 'Tests related to a particular feature / functional area'-->
+      <div  fxLayout="row" *ngIf="StepOne.value.selectedscheduleRunType == 2">
+        <div class="item" fxFlex="48">
+        <mat-card>
+          <mat-card-content>
+          <!-- <strong>Select Functional Area Major {{selctedApplication}}</strong>            -->
+         <!-- <mat-divider></mat-divider> -->
+
+        <mat-list class="make-scrollable">
+          <mat-list-item *ngFor="let app of functionalAreaMajorModel" (click)="getFeturesByFunctionalAreaMajorId(app)" >
+            {{app.FunctionalAreaMajorName}}
+            </mat-list-item>
+        </mat-list>
+
+      </mat-card-content>
+        </mat-card>
+        </div>
+      </div>
+
+      </mat-expansion-panel>
+      </mat-accordion>
+
+    </div>
+  </div>
+      <!-- Test suites Box ,Visible when run type =  'for A variety of test cases' -->
+      <div  fxLayout="row" *ngIf="StepOne.value.selectedscheduleRunType == 1" >
+          <div class="item"   fxFlex="40">
+          <mat-card>
+            <mat-card-content>
+            <strong> Available Test Suites</strong>
+            <mat-divider></mat-divider>
+
+            <mat-selection-list class="make-scrollable"  formControlName="selectedTestSuits">
+              <mat-list-option [value]="obj" *ngFor="let obj of testSuits"  (selectionChange)="getTestcase(obj.TestSuiteID,$event)">
+                {{obj.TestSuiteName}}
+              </mat-list-option>
+            </mat-selection-list>
+
+            </mat-card-content>
+        <mat-card-actions>
+            <strong>Total Test Suites :{{testSuits?.length}}</strong> &nbsp;
+            <!-- <mat-checkbox>Select All</mat-checkbox> -->
+        </mat-card-actions>
+        </mat-card>
+          </div>
+
+          <div class="item"   fxFlex="40">
+              <mat-card>
+                  <mat-card-content>
+            <strong>Selected Test Suites</strong>
+            <mat-divider></mat-divider>
+            <mat-list class="make-scrollable">
+              <mat-list-item *ngFor="let obj of secondFormGroup.value.selectedTestSuits">
+                {{obj.TestSuiteName}}
+              </mat-list-item>
+            </mat-list>
+            </mat-card-content>
+            <mat-card-actions>
+                <strong>Total Selected :{{secondFormGroup.value.selectedTestSuits?.length}} </strong>
+            </mat-card-actions>
+            </mat-card>
+              </div>
+      </div>
+
+      <!-- Available Feature Box , visible when run type =  'Tests related to a particular feature / functional area'-->
+      <div  fxLayout="row" *ngIf="StepOne.value.selectedscheduleRunType == 2" >
+        <div class="item"   fxFlex="40">
+        <mat-card>
+          <mat-card-content>
+          <strong>Available Features</strong>
+          <mat-divider></mat-divider>
+
+          <mat-selection-list class="make-scrollable"  formControlName="selectedFeatures">
+            <mat-list-option [value]="obj" *ngFor="let obj of functionalAreaModel"  (selectionChange)="getTestCaseByFunctionalAreaId(obj.FunctionalAreaID,$event)">
+              {{obj.FunctionalAreaName}}
+            </mat-list-option>
+          </mat-selection-list>
+
+          </mat-card-content>
+      <mat-card-actions>
+          <strong>Total Test Suites :{{functionalAreaModel?.length}}</strong> &nbsp;
+          <!-- <mat-checkbox>Select All</mat-checkbox> -->
+      </mat-card-actions>
+      </mat-card>
+        </div>
+
+        <div class="item"   fxFlex="40">
+            <mat-card>
+                <mat-card-content>
+          <strong>Selected Features</strong>
+          <mat-divider></mat-divider>
+          <mat-list class="make-scrollable">
+            <mat-list-item *ngFor="let obj of secondFormGroup.value.selectedFeatures">
+              {{obj.FunctionalAreaName}}
+            </mat-list-item>
+          </mat-list>
+          </mat-card-content>
+          <mat-card-actions>
+              <strong>Total Selected :{{secondFormGroup.value.selectedFeatures?.length}} </strong>
+          </mat-card-actions>
+          </mat-card>
+            </div>
+      </div>
+
+      <!-- Test Case Box Control-->
+      <div  fxLayout="row">
+
+      <div class="item"   fxFlex="40">
+         <mat-card>
+              <mat-card-content>
+              <div class="divSearch">
+
+              <strong>Available Test Cases </strong>
+
+              <!-- <mat-form-field >
+                    <input matInput name="searchText" formControlName="searchText"  placeholder="Search By Name">
+              </mat-form-field> -->
+              </div>
+
+              <mat-divider></mat-divider>
+              <wb-loading-spinner [loading]="showLoader" style="text-align: center" ></wb-loading-spinner>
+              <mat-selection-list #lstTestCase [ngClass]="(StepOne.value.selectedscheduleRunType == 3) ? 'make-scrollable-long' : 'make-scrollable'" formControlName="selectedTestCases">
+                <mat-list-option *ngFor="let obj of testCases | filterTestCase:secondFormGroup.value.searchText" [value]="obj" >
+                  {{obj.TestCaseName}}
+                </mat-list-option>
+              </mat-selection-list>
+                    </mat-card-content>
+                    <mat-card-actions>
+                        <strong>Total Test Cases :{{testCases?.length}}</strong> &nbsp;
+
+                        <mat-checkbox  (change)= "selectAll($event)">Select All</mat-checkbox>
+                    </mat-card-actions>
+              </mat-card>
+              </div>
+
+
+        <div class="item"   fxFlex="40">
+            <mat-card>
+                 <mat-card-content>
+                <strong>Selected Test Cases </strong>
+                <mat-divider></mat-divider>
+                <mat-list [ngClass]="(StepOne.value.selectedscheduleRunType == 3) ? 'make-scrollable-long' : 'make-scrollable'">
+                  <mat-list-item *ngFor="let obj of secondFormGroup.value.selectedTestCases">
+                    {{obj.TestCaseName + " "}}
+                    <mat-icon (click)="openDialog(obj.TestCaseDescription)" color="accent">arrow_right</mat-icon>
+                  </mat-list-item>
+                </mat-list>
+                      </mat-card-content>
+                      <mat-card-actions>
+                          <strong>Total Selected : {{secondFormGroup.value.selectedTestCases?.length}}</strong> &nbsp;
+                      </mat-card-actions>
+              </mat-card>
+           </div>
+      </div>
+
+
+      <div>
+          <button mat-raised-button color="primary" matStepperPrevious> <mat-icon>reply</mat-icon> Back</button>
+          <button mat-raised-button color="primary" Next matStepperNext [disabled]="!secondFormGroup.valid" (click)="NextClick(2)"> <mat-icon>forward</mat-icon> Next</button>
+      </div>
+    </form>
+  </mat-step>
+
+   <!-- Step Three - Select Browser | operting system-->
+  <mat-step [stepControl]="thirdFormGroup" [editable]="_isEditable">
+    <form [formGroup]="thirdFormGroup" class="StepBody"  >
+        <mat-divider></mat-divider>
+        <ng-template matStepLabel> <strong>Select Browser | Operating System </strong> </ng-template>
+
+      <div  *ngIf="showBrowserOperatingsySys" >
+          <div fxLayout="row">
+          <div class="item"   fxFlex="40">
+              
+           <mat-card>
+            <mat-card-content>
+                <strong>Select Browser | Operating System </strong>
+                <mat-divider></mat-divider>
+                <mat-selection-list #lstBrowserOperatingSystem class="make-scrollable-long" formControlName ="selectedbrowserSystemList">
+                  <mat-list-option [value]="obj" *ngFor="let obj of browserSystemList">
+                  {{obj.BrowserOperatingSystem}}
+                  </mat-list-option>
+                  </mat-selection-list>
+              </mat-card-content>
+
+              <mat-card-actions>
+                <strong>Total Records :{{browserSystemList?.length}}</strong> &nbsp;
+                <mat-checkbox (change)="selectAllBrowser($event)">Select All</mat-checkbox>
+              </mat-card-actions>
+
+          </mat-card>
+          </div>
+
+          <div class="item"   fxFlex="40">
+            <mat-card>
+                  <mat-card-content>
+                  <strong>Selected Browser | Operating System </strong>
+                  <mat-divider></mat-divider>
+                  <mat-list class="make-scrollable-long">
+                    <mat-list-item *ngFor="let obj of thirdFormGroup.value.selectedbrowserSystemList">
+                      {{obj.BrowserOperatingSystem}}
+                    </mat-list-item>
+                  </mat-list>
+                  </mat-card-content>
+                  <mat-card-actions>
+                      <strong>Total Selected :{{thirdFormGroup.value.selectedbrowserSystemList?.length}} </strong>
+                  </mat-card-actions>
+            </mat-card>
+          </div>
+        </div>
+
+      <div>
+          <button mat-raised-button color="primary" matStepperPrevious ><mat-icon>reply</mat-icon>Back</button>
+          <button mat-raised-button color="primary" matStepperNext [disabled]="!thirdFormGroup.valid"><mat-icon>forward</mat-icon>Continue</button>
+      </div>
+    </div>
+
+ <div  fxLayout="row" *ngIf="!showBrowserOperatingsySys">
+    <div class="item"   fxFlex="100">
+      <mat-card>
+          <mat-card-header>
+             
+          </mat-card-header>
+         
+          <mat-card-content>
+              <strong>
+                The tests that you have selected do not require the selection of a browser or an operating system.
+              </strong>
+            </mat-card-content>
+            <mat-divider></mat-divider>
+            <mat-card-actions>
+                    <button mat-raised-button color="primary" matStepperPrevious ><mat-icon>reply</mat-icon>Back</button>
+                    <button mat-raised-button color="primary" matStepperNext><mat-icon>forward</mat-icon>Continue</button>
+              </mat-card-actions>
+      </mat-card>
+
+  </div>
+  </div>
+
+    </form>
+
+   
+
+    
+  </mat-step>
+
+
+  
+          
+ <!-- Step Four - Scheduling Test/Feautre -->
+  <mat-step [stepControl]="fourthFormGroup" [editable]="_isEditable">
+    <form [formGroup]="fourthFormGroup" class="StepBody">
+      <ng-template matStepLabel><strong>Schedule Test Cases</strong></ng-template>
+
+                <h4> <strong>Requested Test Details!</strong> </h4>
+                <h5>Please review your choices carefully. Once submitted, they cannot be changed!</h5>
+
+                <mat-divider></mat-divider>
+
+          <div  fxLayout="row"  fxLayoutAlign="center" *ngIf="StepOne.value.selectedscheduleRunType == 1"  >
+                  <div class="item"   fxFlex="70">
+                   <mat-card>
+                    <mat-card-content>
+                        <strong>Selected Test Suites</strong>
+                        <mat-divider></mat-divider>
+                        <mat-list class="make-scrollable-small">
+                          <mat-list-item  *ngFor="let model of secondFormGroup.value.selectedTestSuits">
+                          {{model.TestSuiteName}}
+                          </mat-list-item>
+                          </mat-list>
+                          </mat-card-content>
+
+                          <mat-card-actions>
+                        <strong>Total Records :{{secondFormGroup.value.selectedTestSuits?.length}}</strong> &nbsp;
+                        </mat-card-actions>
+
+                  </mat-card>
+                    </div>
+          </div>
+
+          <div  fxLayout="row"  fxLayoutAlign="center" *ngIf="StepOne.value.selectedscheduleRunType == 2"  >
+            <div class="item"   fxFlex="70">
+             <mat-card>
+              <mat-card-content>
+                  <strong>Selected Features</strong>
+                  <mat-divider></mat-divider>
+                  <mat-list class="make-scrollable-small">
+                    <mat-list-item  *ngFor="let model of secondFormGroup.value.selectedFeatures">
+                    {{model.FunctionalAreaName}}
+                    </mat-list-item>
+                    </mat-list>
+                    </mat-card-content>
+
+                    <mat-card-actions>
+                  <strong>Total Records :{{secondFormGroup.value.selectedFeatures?.length}}</strong> &nbsp;
+                  </mat-card-actions>
+
+            </mat-card>
+              </div>
+          </div>
+
+          <div  fxLayout="row"  fxLayoutAlign="center" >
+                    <div class="item"   fxFlex="70">
+                          <mat-card>
+                           <mat-card-content>
+                               <strong>Selected Test Cases</strong>
+                               <mat-divider></mat-divider>
+                               <mat-list class="make-scrollable-small">
+                                 <mat-list-item  *ngFor="let model of secondFormGroup.value.selectedTestCases">
+                                 <!-- <strong>   {{ model.TestCaseName }} </strong>{{  " - " + model.TestCaseDescription }} -->
+
+                                 {{model.TestCaseName + " "}}
+                                 <mat-icon (click)="openDialog(model.TestCaseDescription)" color="accent">arrow_right</mat-icon>
+
+                                 </mat-list-item>
+                                 </mat-list>
+                                 </mat-card-content>
+
+                                 <mat-card-actions>
+                               <strong>Total Records :{{secondFormGroup.value.selectedTestCases?.length}}</strong> &nbsp;
+                               </mat-card-actions>
+
+                         </mat-card>
+                  </div>
+          </div>
+
+              <wb-loading-spinner [loading]="showLoader" style="text-align: center"></wb-loading-spinner>
+
+          <div  fxLayout="row" fxLayoutAlign="center" *ngIf="showBrowserOperatingsySys">
+                          <div class="item"   fxFlex="70">
+                                <mat-card>
+                                 <mat-card-content>
+                                     <strong>Selected Browser / OS </strong>
+                                     <mat-divider></mat-divider>
+                                     <mat-list class="make-scrollable-small">
+                                       <mat-list-item  *ngFor="let model of thirdFormGroup.value.selectedbrowserSystemList">
+                                       {{model.BrowserOperatingSystem}}
+                                       </mat-list-item>
+                                       </mat-list>
+                                       </mat-card-content>
+
+                                       <mat-card-actions>
+                                     <strong>Total Records :{{thirdFormGroup.value.selectedbrowserSystemList?.length}}</strong> &nbsp;
+                                     </mat-card-actions>
+
+                               </mat-card>
+                        </div>
+            </div>
+
+      <div fxLayoutAlign="center" >
+        <div  fxLayout="row" fxFlex="70" >
+                <div class="item"   fxFlex="85">
+                      <button mat-raised-button color="primary" matStepperPrevious><mat-icon>reply</mat-icon> Back</button>
+                </div>
+                <div class="item"   fxFlex="15">
+                        <button mat-raised-button color="primary"  [disabled]="secondFormGroup.value.selectedTestCases?.length == 0" (click)="ScheduleTest()"><mat-icon>schedule</mat-icon> Schedule</button>
+                </div>
+        </div>
+    </div>
+  </form>
+  </mat-step>
+
+<!-- tep Five  - Schedule Result -->
+  <mat-step>
+    <form>
+    <ng-template matStepLabel><strong>Schedule Result</strong></ng-template>
+
+    <mat-divider></mat-divider>
+    <div  fxLayout="row"  fxLayoutAlign="center"  >
+        <div class="item" fxFlex="100" >
+         <mat-card>
+          <mat-card-content>
+              <strong>Your test has been scheduled.</strong><br><br>
+               <p>Your submitted test id is: <strong>{{this.submittedId}} </strong> </p><br>
+               <p>You will receive an email when the Automation Controller has started your test with details including the assigned test machines and scheduled test cases.</p>
+
+              </mat-card-content>
+            </mat-card>
+
+
+
+            <mat-accordion fx ="10px" >
+              <mat-expansion-panel>
+                <mat-expansion-panel-header>
+                  <mat-panel-title>
+                  <strong>Summary</strong>
+                  </mat-panel-title>
+                </mat-expansion-panel-header>
+
+                <div  fxLayout="row"  fxLayoutAlign="center" *ngIf="StepOne.value.selectedscheduleRunType == 1"  >
+                  <div class="item"   fxFlex="70">
+                   <mat-card>
+                    <mat-card-content>
+                        <strong>Selected Test Suites</strong>
+                        <mat-divider></mat-divider>
+                        <mat-list class="make-scrollable-small">
+                          <mat-list-item  *ngFor="let model of secondFormGroup.value.selectedTestSuits">
+                          {{model.TestSuiteName}}
+                          </mat-list-item>
+                          </mat-list>
+                          </mat-card-content>
+
+                          <mat-card-actions>
+                        <strong>Total Records :{{secondFormGroup.value.selectedTestSuits?.length}}</strong> &nbsp;
+                        </mat-card-actions>
+
+                  </mat-card>
+                    </div>
+          </div>
+
+          <div  fxLayout="row"  fxLayoutAlign="center" *ngIf="StepOne.value.selectedscheduleRunType == 2"  >
+            <div class="item"   fxFlex="70">
+             <mat-card>
+              <mat-card-content>
+                  <strong>Selected Features</strong>
+                  <mat-divider></mat-divider>
+                  <mat-list class="make-scrollable-small">
+                    <mat-list-item  *ngFor="let model of secondFormGroup.value.selectedFeatures">
+                    {{model.FunctionalAreaName}}
+                    </mat-list-item>
+                    </mat-list>
+                    </mat-card-content>
+
+                    <mat-card-actions>
+                  <strong>Total Records :{{secondFormGroup.value.selectedFeatures?.length}}</strong> &nbsp;
+                  </mat-card-actions>
+
+            </mat-card>
+              </div>
+          </div>
+
+          <div  fxLayout="row"  fxLayoutAlign="center" >
+                    <div class="item"   fxFlex="70">
+                          <mat-card>
+                           <mat-card-content>
+                               <strong>Selected Test Cases</strong>
+                               <mat-divider></mat-divider>
+                               <mat-list class="make-scrollable-small">
+                                 <mat-list-item  *ngFor="let model of secondFormGroup.value.selectedTestCases">
+                                 <!-- <strong>   {{ model.TestCaseName }} </strong>{{  " - " + model.TestCaseDescription }} -->
+                                 {{model.TestCaseName + " "}}
+                                 <mat-icon (click)="openDialog(model.TestCaseDescription)" color="accent">arrow_right</mat-icon>
+                                 </mat-list-item>
+                                 </mat-list>
+                                 </mat-card-content>
+
+                                 <mat-card-actions>
+                               <strong>Total Records :{{secondFormGroup.value.selectedTestCases?.length}}</strong> &nbsp;
+                               </mat-card-actions>
+
+                         </mat-card>
+                  </div>
+          </div>
+
+
+          <div  fxLayout="row" fxLayoutAlign="center" *ngIf="showBrowserOperatingsySys">
+            <div class="item"   fxFlex="70">
+                  <mat-card>
+                   <mat-card-content>
+                       <strong>Selected Browser / OS </strong>
+                       <mat-divider></mat-divider>
+                       <mat-list class="make-scrollable-small">
+                         <mat-list-item  *ngFor="let model of thirdFormGroup.value.selectedbrowserSystemList">
+                         {{model.BrowserOperatingSystem}}
+                         </mat-list-item>
+                         </mat-list>
+                         </mat-card-content>
+
+                         <mat-card-actions>
+                       <strong>Total Records :{{thirdFormGroup.value.selectedbrowserSystemList?.length}}</strong> &nbsp;
+                       </mat-card-actions>
+
+                 </mat-card>
+          </div>
+        </div>
+
+          </mat-expansion-panel>
+          </mat-accordion>
+
+        </div>
+  </div>
+
+  <div fxLayoutAlign="center" fxLayoutGap="10px" >
+      <button mat-raised-button color="primary"(click)="home()" type="button">  <mat-icon>home</mat-icon> Home </button>
+      <button mat-raised-button color="warn" type="button" (click)="scheduleNew()">  <mat-icon>schedule</mat-icon> Schedule Another Test</button>
+
+  </div>
+
+</form>
+  </mat-step>
+
+</mat-horizontal-stepper>
+
+  </mat-card-content>
+
+</mat-card>
+
+<!-- For testing only to view page data on change-->
+<div *ngIf='false'>
+<strong>Form 1</strong>
+<br>Dirty: {{ StepOne.dirty }}
+<br>Touched: {{ StepOne.touched }}
+<br>Valid: {{ StepOne.valid }}
+<br>Value: {{ StepOne.value | json }}
+<br>
+<strong>Form 2</strong>
+<br>Dirty: {{ secondFormGroup.dirty }}
+<br>Touched: {{ secondFormGroup.touched }}
+<br>Valid: {{ secondFormGroup.valid }}
+<br>Value: {{ secondFormGroup.value | json }}
+<br>{{secondFormGroup.value.selectedTestCases?.length }}
+
+<br>
+<strong>Form 3</strong>
+<br>Dirty: {{ thirdFormGroup.dirty }}
+<br>Touched: {{ thirdFormGroup.touched }}
+<br>Valid: {{ thirdFormGroup.valid }}
+<br>Value: {{ thirdFormGroup.value | json }}
+
+<br>
+<strong>Form 4</strong>
+<br>Dirty: {{ fourthFormGroup.dirty }}
+<br>Touched: {{ fourthFormGroup.touched }}
+<br>Valid: {{ fourthFormGroup.valid }}
+<br>Value: {{ fourthFormGroup.value | json }}
+<br>Error: {{this.fourthFormGroup.getError()}}
+
+</div>
+
+

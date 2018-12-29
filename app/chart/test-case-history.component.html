@@ -1,0 +1,192 @@
+
+<mat-card >  
+<header>
+  <div class="historyFilter">    
+    
+  <div  fxLayout="row">
+      <div  fxFlex="8">
+      <button mat-raised-button color="basic"(click) ="back()" >
+          <mat-icon>reply_circle</mat-icon>
+          Back
+      </button>  
+      </div> 
+
+      <div  fxFlex>
+      <mat-radio-group name="HistoryType" [(ngModel)] = "selectedSearchHistoryType"> 
+          <mat-radio-button  *ngFor="let type of searchHistoryTypeList" [value]="type.key" (change)="historyTypeChange()">
+            {{type.Value}}
+          </mat-radio-button>
+      </mat-radio-group> 
+      </div> 
+  </div> 
+
+<div  fxLayout="row">  
+     
+  <div  fxFlex="20" *ngIf="selectedSearchHistoryType==1">   
+  <mat-form-field>
+       <mat-select name="testSuite" placeholder="Test Suites" (change)="TestCaseTestSuiteId(TestSuiteID)" [(value)]="testSuiteID">
+          <mat-option *ngFor="let obj of testSuits" [value]="obj.TestSuiteID" >
+              {{obj.TestSuiteName}}
+            </mat-option>
+      </mat-select>
+    </mat-form-field>
+  </div>
+
+  <div  fxFlex="25" *ngIf="selectedSearchHistoryType==2">    
+        <mat-form-field>
+          <mat-select name="features" placeholder="Feature Area" (change)="getTestCaseByFunctionalAreaId(FunctionalAreaID)" [(value)]="testSuiteID">
+            <mat-option *ngFor="let obj of functionalAreaList" [value]="obj.FunctionalAreaID" >
+                {{obj.FunctionalAreaName}}
+              </mat-option>
+        </mat-select>
+      </mat-form-field>
+  </div>
+
+   <div  fxFlex="25">    
+   <mat-form-field>
+    <mat-select name="testCase" placeholder="Test Case" [(ngModel)] = "selectedTestCaseId" >
+       <mat-option *ngFor="let obj of testCases" [value]="obj.TestCaseID" >
+           {{obj.TestCaseName}}
+         </mat-option>
+   </mat-select>
+ </mat-form-field>
+</div>
+
+
+<div  fxFlex="20">    
+    <mat-form-field>
+     <mat-select name="TestBrowser" placeholder="Browser" [(ngModel)] = "selectedTestBrowserId"> 
+        <mat-option Value="-1">None</mat-option>
+        <mat-option *ngFor="let obj of browserSystemList" [value]="obj.TestBrowserID" >
+            {{obj.TestBrowserName}}
+          </mat-option>
+    </mat-select>
+  </mat-form-field>
+ </div>
+
+ <div  fxFlex="20">    
+    <mat-form-field>
+     <mat-select name="TestEnvironment" placeholder="Environment" [(ngModel)] = "selectedTestEnvironmentId">
+        <mat-option Value="-1">None</mat-option>
+
+        <mat-option *ngFor="let obj of environmentList" [value]="obj.TestEnvironmentID" >
+            {{obj.TestEnvironmentName}}
+          </mat-option>
+    </mat-select>
+  </mat-form-field>
+ </div>
+
+ <div  fxFlex="15">   
+    <mat-form-field>
+        <input matInput placeholder="History" type="number" [(ngModel)] = "totalDays">
+      </mat-form-field>
+ </div>
+
+</div>
+
+
+<div  fxLayout="row">
+  <div  fxFlex="20"> 
+    <button mat-raised-button color="primary" (click)="getHistory()"> <mat-icon>history</mat-icon> Get History</button>  
+</div>
+<div  fxFlex="80" *ngIf="_commonDataService._userInfo.IsDebugRunOnly"> 
+    <section>
+    <mat-checkbox class="example-margin" [(ngModel)]="ShowDebugRuns" name="isDebugRun">Debug run only</mat-checkbox>
+  </section>
+</div>
+</div>
+
+
+  </div>                  
+</header>
+
+  <mat-divider></mat-divider>
+      
+ 
+      <wb-loading-spinner [loading]="showLoader" style="text-align: center" ></wb-loading-spinner>
+
+
+      <mat-table [dataSource]="dataSource" matSort matSortActive="created" matSortDisableClear matSortDirection="asc" let index="index">      
+        <!--- Note that these columns can be defined in any order.
+              The actual rendered columns are set as a property on the row definition" -->   
+    
+      <!-- SubmittedTestID Column -->
+      <ng-container matColumnDef="SubmittedTestID">
+        <mat-header-cell *matHeaderCellDef mat-sort-header fxFlex="100px">Submitted Test Id</mat-header-cell>        
+        <mat-cell *matCellDef="let element"  fxFlex="100px" >          
+                  <!-- <a (click)="openDialog(element,2)"  href="javascript:void(0)"  >
+                    {{element.SubmittedTestID}}
+                    </a>     -->
+                    {{element.SubmittedTestID}} 
+        </mat-cell> 
+      </ng-container>
+    
+        <!-- TestcaseName Column -->
+        <ng-container matColumnDef="TestcaseName">
+          <mat-header-cell *matHeaderCellDef mat-sort-header fxFlex="300px">Test Case Name </mat-header-cell>
+              <mat-cell *matCellDef="let element" fxFlex="300px">                          
+                      {{element.TestcaseName}}
+              </mat-cell>
+        </ng-container>
+    
+         <!-- TestResult Column -->
+         <ng-container matColumnDef="TestResult">
+          <mat-header-cell *matHeaderCellDef mat-sort-header fxFlex="90px"> Result </mat-header-cell>
+          <mat-cell *matCellDef="let element" fxFlex="90px"  > 
+              <a (click)="openDialog(element,1)" [style.color]="_commonDataService?.getColor(element.Result)" href="javascript:void(0)"  >
+                {{element.TestResult}}
+                </a> 
+              
+           </mat-cell>
+        </ng-container>
+    
+        <!-- TestMachineName Column -->
+        <ng-container matColumnDef="TestMachineName">
+          <mat-header-cell *matHeaderCellDef mat-sort-header> Test Machine </mat-header-cell>
+          <mat-cell *matCellDef="let element"> {{element.TestMachineName}} </mat-cell>
+        </ng-container>
+    
+        <!-- OperatingsyStemName Column -->
+        <ng-container matColumnDef="OperatingsyStemName">
+          <mat-header-cell *matHeaderCellDef mat-sort-header> Operating System</mat-header-cell>
+          <mat-cell *matCellDef="let element"> {{element.OperatingsyStemName}} </mat-cell>
+        </ng-container>
+    
+          <!-- TestBrowserName Column -->
+          <ng-container matColumnDef="TestBrowserName">
+              <mat-header-cell *matHeaderCellDef mat-sort-header> Test Browser </mat-header-cell>
+              <mat-cell *matCellDef="let element"> {{element.TestBrowserName}} </mat-cell>
+          </ng-container>
+
+           <!-- TestBrowserName Column -->
+           <ng-container matColumnDef="TestEnvironmentName">
+            <mat-header-cell *matHeaderCellDef mat-sort-header> Environment </mat-header-cell>
+            <mat-cell *matCellDef="let element"> {{element.TestEnvironmentName}} </mat-cell>
+        </ng-container>
+        
+           <!-- Note Column -->
+           <ng-container matColumnDef="Note">
+            <mat-header-cell *matHeaderCellDef mat-sort-header> Note </mat-header-cell>
+            <mat-cell *matCellDef="let element"> {{element.Note | limitTo: 20}} {{element.Note > 20 ? '...' : ''}} </mat-cell>
+        </ng-container>
+
+         <!-- EndDTTM Column -->
+         <ng-container matColumnDef="EndDTTM">
+          <mat-header-cell *matHeaderCellDef mat-sort-header>  End Date </mat-header-cell>
+          <mat-cell *matCellDef="let element"> {{element.EndDTTM | date : "MM/dd/yyyy HH:mm:ss"}} </mat-cell>
+      </ng-container>
+          
+    
+        <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+        <mat-row *matRowDef="let row; columns: displayedColumns;let cIndex  = index"></mat-row>
+      </mat-table>
+    
+      <mat-paginator #paginator
+      [pageSize]="100"
+      [pageSizeOptions]="[100, 200, 300]">
+      </mat-paginator>
+          
+
+
+
+</mat-card>

@@ -1,0 +1,30 @@
+
+<mat-card class="mainCard">  
+  <form>
+  <div class="body">      
+ 
+        <h4>
+          {{pageTitle}}
+         
+        </h4>
+        <h4>
+          {{subTitle}}
+        </h4>       
+  </div>                  
+ 
+  <mat-divider></mat-divider>
+  <wb-loading-spinner [loading]="showLoader" style="text-align: center" ></wb-loading-spinner>    
+
+  <div class="cardContainer">        
+ 
+          <mat-form-field>
+              <mat-select  [(ngModel)]="SelectedType" name="task">
+                  <mat-option *ngFor="let obj of automationTasks" [value]="obj.id">
+                      {{obj.Task}}
+                  </mat-option>
+              </mat-select>
+            </mat-form-field> 
+</div> 
+<button mat-raised-button type='button' color="primary" (click)="continue()" [disabled] = "!_commonDataService._userInfo.isAuthorized" > <mat-icon>forward</mat-icon>Continue</button>   
+</form>
+</mat-card>

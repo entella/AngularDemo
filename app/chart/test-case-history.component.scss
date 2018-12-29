@@ -1,0 +1,24 @@
+
+.historyFilter {
+    font-size: 14px;
+    margin: 5px;
+    padding-bottom: 10px;
+    //background-color: #fafafa;    
+}
+
+.historyFilter mat-radio-button {
+    display: inline-block;
+    order: 0;
+    line-height: inherit;
+    padding-left: 4px;
+    padding-right: 0;
+    margin-right: 10px;
+}
+.mat-row {
+    text-align: left;
+    min-height: 25px;
+  }
+  
+  .mat-row:nth-child(odd){
+    background-color:#8bc34a1c;
+}

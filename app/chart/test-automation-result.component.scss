@@ -1,0 +1,55 @@
+/* Structure */
+.example-container {
+    display: flex;
+    flex-direction: column;
+    min-width: 300px;
+  }
+  
+  .example-header {
+    min-height: 64px;
+    padding: 8px 24px 0;
+  }
+  
+  .mat-form-field {
+    font-size: 14px;
+    width: 100%;
+  }
+  
+  .mat-table {
+    overflow: auto;    
+    margin: 0px 10px 10px 10px;   
+   
+  }  
+  .mat-row {
+    text-align: center;
+    min-height: 25px;
+  }
+  .mat-cell{   
+    text-align: center;
+    border: 1px solid;
+    text-align: center;   
+    min-height: 30px;
+    margin: 1px;
+    border-color: rgba(0,0,0,.12);
+    vertical-align: middle;
+  }
+
+ .mat-column-TestCaseName{
+   flex: 2;
+   border:none;
+   vertical-align: middle;
+   text-align: left;
+ }
+
+.fxRow{
+  padding: 10px;
+}
+.mat-checkbox{    
+  height: 40px;
+  font-size: 14px; 
+}
+
+.mat-checkbox-inner-container {
+  height: 17px;
+  width: 17px;
+}

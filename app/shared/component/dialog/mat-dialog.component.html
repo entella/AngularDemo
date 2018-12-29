@@ -1,0 +1,59 @@
+<div  fxLayout="row">  
+        <div  fxFlex="85" *ngIf="modelData.id == 'history' || modelData.id == 'docLocation' ">
+                <button mat-icon-button  (click)="copyToClipboard()" >
+                        <mat-icon color="accent">file_copy</mat-icon>
+                </button> 
+        </div>
+        <div  fxFlex="15"  >
+                <button mat-icon-button (click)="onCloseConfirm()">
+                        <mat-icon color="primary">close</mat-icon>
+                    </button> 
+          </div>
+    </div>
+
+<mat-card>
+  <div class="matDialogContent" *ngIf="modelData.id == 'history'">
+    <strong>
+        Test Artifact Path        
+    </strong>
+    <br>
+    <mat-divider></mat-divider>
+    <br>
+    Test artifacts for Submitted Test {{ modelData.submittedTestID}} / Test Machine - {{modelData.testMachineName}} can be found at:
+    <br> <br>
+      <div>
+          {{modelData.testArtifactPath}}
+      </div>  
+  </div>  
+
+  <div class="matDialogContent" *ngIf="modelData.id == 'docLocation'">
+    <strong>
+        Test Artifact Path        
+    </strong>
+    <br>
+    <mat-divider></mat-divider>
+    <br>
+   
+      <div>
+         <a href="#"> {{modelData.testArtifactPath}}</a>
+      </div>  
+  </div> 
+
+  <!-- This section will open from schedule step 2-->
+  <div class="matDialogContent" *ngIf="modelData.id == 'step2'">       
+         
+        <strong>
+            Test Case Description          
+        </strong>
+        <br>
+        <mat-divider></mat-divider>
+        <br>
+        <div>
+            {{modelData.testDescription}}
+        </div>  
+    </div>  
+
+  
+</mat-card>
+
+ 

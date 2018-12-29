@@ -1,0 +1,186 @@
+<div class="example-container mat-elevation-z8">
+    <div class="example-header">
+    <div  fxLayout="row" class="fxRow">  
+        <div fxFlex="40">             
+              
+            <button mat-raised-button color="basic"(click) ="back()" >
+               <mat-icon>reply_circle</mat-icon>
+               Back
+           </button>                
+         </div>        
+        <div   fxFlex="50">  
+            <strong> Submitted Test ID: </strong>
+            <a (click)="openDialog()"  href="javascript:void(0)"  >
+                {{submissionId}}
+                </a>     
+        </div>
+        <div   fxFlex="10" *ngIf="isAbortVisible">  
+           <button mat-raised-button color="warn" (click)="abortTest(submissionId)" ><mat-icon>cancel</mat-icon> Abort Test</button>    
+      </div>
+    </div>
+    
+    <div  fxLayout="row" class="fxRow">  
+        <div  fxFlex="15">  
+           <strong>Test Environment: </strong> 
+            {{resultTable.dataSource.data[0]?.TestEnvironmentName}}
+          </div>
+          <div   fxFlex="20">  
+             <strong>Test Requested By:</strong>
+                {{resultTable.dataSource.data[0]?.TestRequestedBy}}
+          </div>
+          <div  fxFlex="25">  
+            <strong>Test Scheduled: </strong>
+
+              {{dateFormate(resultTable.dataSource.data[0]?.CreatedDTTM)}}
+          </div>
+            <div  fxFlex="20"> 
+              <strong> Started: </strong>
+                {{dateFormate(resultTable.dataSource.data[0]?.StartDTTM)}}
+            </div>
+            <div  fxFlex="20">  
+              <strong> Finished:</strong>
+                {{dateFormate(resultTable.dataSource.data[0]?.EndDTTM)}}
+              </div>
+      </div>        
+
+      <div  fxLayout="row">  
+            
+            <div  fxFlex="20">
+                <mat-form-field>
+              <input matInput (keyup)="applyFilter($event.target.value)" placeholder="Filter Test Case">
+            </mat-form-field>
+            </div>
+            <div fxFlex="40">
+                <mat-checkbox (change)="diplayAllColumn()" [(ngModel)]="showAllColumn" >Show All Browsers</mat-checkbox>
+            </div>
+      </div>
+    </div> 
+    
+    <mat-divider></mat-divider>
+    <wb-loading-spinner [loading]="showLoader" style="text-align: center" ></wb-loading-spinner>    
+
+    <mat-table #resultTable [dataSource]="dataSource" matSort  matSortDisableClear  let index="index">      
+      <!--- Note that these columns can be defined in any order.
+            The actual rendered columns are set as a property on the row definition" -->   
+
+    <!-- Test Case -->
+    <ng-container matColumnDef="TestCaseName">
+      <mat-header-cell *matHeaderCellDef mat-sort-header [style.width]="testCaseWidth">Test Case </mat-header-cell>
+      
+      <mat-cell *matCellDef="let element"  flex="2" [style.background-color]="backgroundColor">
+                <a [routerLink]="['/OATHistory',element.SubmittedTestID]" [queryParams]="{testSuiteId:element.TestSuiteId, testCaseId: element.TestCaseId}" >
+                  {{element.TestCaseName}}     
+                 </a>    
+      </mat-cell>
+    </ng-container>
+
+      <!-- Chrome -->
+      <ng-container matColumnDef="TestBrowserOneStatus">
+      <mat-header-cell *matHeaderCellDef mat-sort-header>Chrome : <strong> {{resultTable.dataSource.data[0].TestMachineName}} </strong>  </mat-header-cell>
+            <mat-cell *matCellDef="let element" [style.background-color]="_commonDataService?.getColor(element.TestBrowserOneStatus)" >
+            
+                <div *ngIf="element.TestBrowserOneStatus!=5">
+                    <a [routerLink]="['/OATHistory',element.SubmittedTestID]" [queryParams]="{testSuiteId:element.TestSuiteId, testCaseId: element.TestCaseId}">
+                      {{GetStatusNamebyId(element.TestBrowserOneStatus)}}
+                     </a>           
+                </div>
+            
+                <div *ngIf="element.TestBrowserOneStatus==5">              
+                      {{GetStatusNamebyId(element.TestBrowserOneStatus)}}                   
+              </div>
+            </mat-cell>
+      </ng-container>
+
+      
+
+
+      <!-- TestBrowserTwoStatus -->
+      <ng-container matColumnDef="TestBrowserTwoStatus">
+        <mat-header-cell *matHeaderCellDef mat-sort-header> Firefox  :  <strong> {{resultTable.dataSource.data[0].TestMachineName}} </strong> </mat-header-cell>
+        <mat-cell *matCellDef="let element" [style.background-color]="_commonDataService?.getColor(element.TestBrowserTwoStatus)"> 
+          <div *ngIf="element.TestBrowserOneStatus!=5">
+              <a [routerLink]="['/OATHistory',element.SubmittedTestID]" [queryParams]="{testSuiteId:element.TestSuiteId, testCaseId: element.TestCaseId}">
+                {{GetStatusNamebyId(element.TestBrowserTwoStatus)}}
+               </a>           
+          </div>        
+          <div *ngIf="element.TestBrowserOneStatus==5">              
+                {{GetStatusNamebyId(element.TestBrowserTwoStatus)}}                   
+         </div>  
+        </mat-cell>
+      </ng-container>
+
+      <!-- TestMachineResult-->
+      <ng-container matColumnDef="TestMachineResult">
+        <mat-header-cell *matHeaderCellDef mat-sort-header><strong> {{resultTable.dataSource.data[0].TestMachineName}} </strong> </mat-header-cell>
+        <mat-cell *matCellDef="let element" [style.background-color]="_commonDataService?.getColor(element.TestMachineResult)">
+            <div *ngIf="element.TestBrowserOneStatus!=5">
+                <a [routerLink]="['/OATHistory',element.SubmittedTestID]" [queryParams]="{testSuiteId:element.TestSuiteId, testCaseId: element.TestCaseId}">
+                  {{GetStatusNamebyId(element.TestMachineResult)}}
+                 </a>           
+            </div>        
+            <div *ngIf="element.TestBrowserOneStatus==5">              
+                  {{GetStatusNamebyId(element.TestMachineResult)}}                   
+           </div>       
+        </mat-cell>
+      </ng-container>
+
+      <!-- TestBrowserThreeStatus -->
+      <ng-container matColumnDef="TestBrowserThreeStatus">
+        <mat-header-cell *matHeaderCellDef mat-sort-header> IE 11 32 Bit : <strong> {{resultTable.dataSource.data[0].TestMachineName}} </strong> </mat-header-cell>
+        <mat-cell *matCellDef="let element" [style.background-color]="_commonDataService?.getColor(element.TestBrowserThreeStatus)"> 
+           <div *ngIf="element.TestBrowserOneStatus!=5">
+              <a [routerLink]="['/OATHistory',element.SubmittedTestID]" [queryParams]="{testSuiteId:element.TestSuiteId, testCaseId: element.TestCaseId}">
+                {{GetStatusNamebyId(element.TestBrowserThreeStatus)}}
+               </a>           
+          </div>        
+          <div *ngIf="element.TestBrowserOneStatus==5">              
+                {{GetStatusNamebyId(element.TestBrowserThreeStatus)}}                   
+         </div>
+        
+        </mat-cell>
+      </ng-container>
+
+      <!-- TestBrowserFourStatus -->
+      <ng-container matColumnDef="TestBrowserFourStatus">
+        <mat-header-cell *matHeaderCellDef mat-sort-header> IE 11 64 Bit : <strong> {{resultTable.dataSource.data[0].TestMachineName}}</strong> </mat-header-cell>
+        <mat-cell *matCellDef="let element" [style.background-color]="_commonDataService?.getColor(element.TestBrowserFourStatus)">
+          <div *ngIf="element.TestBrowserOneStatus!=5">
+              <a [routerLink]="['/OATHistory',element.SubmittedTestID]" [queryParams]="{testSuiteId:element.TestSuiteId, testCaseId: element.TestCaseId}">
+                {{GetStatusNamebyId(element.TestBrowserFourStatus)}}
+               </a>           
+          </div>        
+          <div *ngIf="element.TestBrowserOneStatus==5">              
+                {{GetStatusNamebyId(element.TestBrowserFourStatus)}}                   
+         </div>
+        </mat-cell>
+      </ng-container>
+
+        <!-- TestBrowserFiveStatus -->
+        <ng-container matColumnDef="TestBrowserFiveStatus">
+            <mat-header-cell *matHeaderCellDef mat-sort-header> Edge : <strong> {{resultTable.dataSource.data[0].TestMachineName}}</strong>  </mat-header-cell>
+            <mat-cell *matCellDef="let element" [style.background-color]="_commonDataService?.getColor(element.TestBrowserFiveStatus)">
+               <div *ngIf="element.TestBrowserOneStatus!=5">
+                  <a [routerLink]="['/OATHistory',element.SubmittedTestID]" [queryParams]="{testSuiteId:element.TestSuiteId, testCaseId: element.TestCaseId}">
+                    {{GetStatusNamebyId(element.TestBrowserFiveStatus)}}
+                   </a>           
+              </div>        
+              <div *ngIf="element.TestBrowserOneStatus==5">              
+                    {{GetStatusNamebyId(element.TestBrowserFiveStatus)}}                   
+             </div>
+              </mat-cell>
+        </ng-container>
+      
+        
+
+      <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+      <mat-row *matRowDef="let row; columns: displayedColumns;let cIndex  = index"></mat-row>
+    </mat-table>
+
+  <mat-paginator #paginator
+  [pageSize]="100"
+  [pageSizeOptions]="[100, 200, 300]">
+  </mat-paginator>
+  
+
+</div>
+<!-- {{dataSource.data[0] | json}} -->

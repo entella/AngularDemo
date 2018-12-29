@@ -1,0 +1,13 @@
+.mat-row {
+    min-height: 25px;
+}
+.mat-expansion-panel-header{
+    font-size: 13px;
+}
+// .mat-row:nth-child(even){
+//     background-color:red;
+// }
+
+.mat-row:nth-child(odd){
+    background-color:#8bc34a1c;
+}

@@ -1,0 +1,113 @@
+
+//Step 1
+.cardContainerStepOne{
+  display: flex;     
+  margin: 40px 0 5px 0;  
+  flex-direction: column;
+  width: 100%;
+  padding: 5px;
+}
+
+
+// .example-card {
+//     max-width: 90%;
+//   } 
+ 
+
+  .example-radio-group {
+    display: inline-flex;
+    flex-direction: column;
+   
+  }
+  
+  .example-radio-button {
+    margin: 5px;
+  }
+  
+ 
+//   Step 2
+.StepBody{
+
+   // background-color: #eee;
+    min-height: 500px;
+}
+.stepCard {
+    background-color: white; 
+    
+}
+
+// .mat-list-option .mat-list-text{
+// font-size: 14px; 
+// }
+/*set mat list option height*/
+.mat-list .mat-list-item, .mat-list .mat-list-option, .mat-nav-list .mat-list-item, .mat-nav-list .mat-list-option, .mat-selection-list .mat-list-item, .mat-selection-list .mat-list-option {
+  display: block;
+  height: 40px;
+  font-size: 14px; 
+  cursor: pointer;
+}
+
+.make-scrollable {
+    min-height: 200px;
+    max-height: 200px;
+    overflow-y: scroll;
+    cursor: pointer;
+}
+
+.make-scrollable-long {
+  min-height: 300px;
+  max-height: 300px;
+  overflow-y: scroll;
+  cursor: pointer;
+}
+
+.make-scrollable-small {
+  min-height: 100px;
+  max-height: 200px;
+  overflow-y: scroll; 
+  cursor: pointer;
+}
+
+.item {    
+    margin: .3em;   
+    padding: .3em;   
+  }
+  .divSearch {
+    padding-right: 5px;
+  }
+ 
+  #scheduleContent .mat-card{
+    background-color: rgba(253, 251, 251, 0.863); 
+    border-right: 4px solid #7bc578;
+  }
+
+  #devStepOne .mat-form-field{
+    width: 300px;
+    padding-top: 5px;
+}
+
+.mat-expansion-panel {
+  background: #9e9e9e0f;
+  color: rgba(0,0,0,.87);
+}
+
+//   .mat-list .mat-list-item {
+//     transition: border-width 0.1s ease-in-out;           
+//     //border-right: 4px solid #ffd740;
+//     background-color: rgba(0, 0, 0, 0.03); 
+//     cursor: pointer;    
+// }
+
+// .mat-selection-list .mat-list-option{
+//     transition: border-width 0.1s ease-in-out;           
+//     //border-right: 4px solid #ffd740;
+//     background-color: rgba(0, 0, 0, 0.03); 
+//     cursor: pointer;    
+// }
+
+// .selected {
+//   color: white;
+//   -webkit-box-shadow:inset 0px 0px 0px 25px #b0b0b0;
+//   -moz-box-shadow:inset 0px 0px 0px 25px #b0b0b0;
+//   box-shadow:inset 0px 0px 0px 25px #b0b0b0;
+//   }
